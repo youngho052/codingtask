@@ -1,9 +1,9 @@
 export const SIGNUP_DATA = [
-  {
-    type: 'text',
-    name: 'email',
-    placeholder: '이메일을 입력해주세요.',
-  },
+  // {
+  //   type: 'text',
+  //   name: 'email',
+  //   placeholder: '이메일을 입력해주세요.',
+  // },
   {
     type: 'password',
     name: 'password',

@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 function Input(props) {
-  console.log(props.userValidation)
   return <InputForm {...props} />
 }
 
