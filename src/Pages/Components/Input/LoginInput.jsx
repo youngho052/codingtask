@@ -2,12 +2,12 @@ import React from 'react'
 import styled from 'styled-components'
 
 function Input(props) {
-  return <InputForm {...props} />
+  return <LoginInputForm {...props} />
 }
 
 export default Input
 
-export const InputForm = styled.input.attrs((props) => ({
+export const LoginInputForm = styled.input.attrs((props) => ({
   type: props.type === 'text' ? 'text' : 'password',
 }))`
   padding: 8px 12px;
@@ -15,11 +15,6 @@ export const InputForm = styled.input.attrs((props) => ({
   height: 38px;
   margin-top: 10px;
   background: #fafafa;
-  border: 1px solid
-    ${(props) =>
-      props.value.length === 0
-        ? 'gray'
-        : (props) =>
-            props.userValidation[`${props.name}Validation`] ? 'blue' : 'red'};
+  border: 1px solid gray;
   border-radius: 5px;
 `

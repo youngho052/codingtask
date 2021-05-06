@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { userToken } from '../../store/action'
-import { SIGNUP_DATA } from '../Components/Input/InputData'
-import InputForm from '../Components/Input/Input'
+import { SIGNUP_DATA } from '../Components/Input/Data/InputData'
+import InputForm from '../Components/Input/SignupInput'
 import { SIGN_UP } from '../../Config'
 import { useHistory } from 'react-router'
 
@@ -18,16 +18,14 @@ function Signup() {
   const [userValidation, setUserValidation] = useState({
     emailValidation: null,
     passwordValidation: false,
-    repasswordValidation: false,
     phoneValidation: false,
   })
-  const [token, setToken] = useState('')
 
+  const emailInput = useRef()
   const dispatch = useDispatch()
   const history = useHistory()
 
-  // 인풋 값 핸들러
-
+  // 회원가입 인풋 값 핸들러
   const signupValueHandle = (e) => {
     const { name, value } = e.target
 
@@ -35,7 +33,6 @@ function Signup() {
   }
 
   // 이메일 유효성 검사
-
   const emailValidation = (e) => {
     const checkEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{3}$/i.test(
       e.target.value,
@@ -49,57 +46,53 @@ function Signup() {
     }
   }
 
+  // 이메일 cursor 이동 함수
+  const focusHandle = () => {
+    emailInput.current.focus()
+  }
+
   // 비밀번호 유효성 검사
-
   const passwordValidation = (e) => {
-    const { password, repassword, phone } = userData
-    console.log(password, repassword)
+    signupValueHandle(e)
 
-    const checkPw = password.match(/^[A-Za-z0-9]{7,15}$/i)
+    const { name } = e.target
 
-    // const checkPw = password.length >= 8 && 15 >= password.length
+    const { password, phone } = userData
 
-    const checkRepw = password === repassword
+    const checkPw = /^[A-Za-z0-9]{7,15}$/i.test(password)
+    const checkPhone = /^[0-9]{2,3}[0-9]{4}[0-9]{4}/.test(phone)
 
-    const checkPhone = phone.match(/^[0-9]{2,3}[0-9]{4}[0-9]{4}/)
-
-    if (checkPw) {
-      setUserValidation({ ...userValidation, passwordValidation: checkPw })
-    } else {
-      setUserValidation({ ...userValidation, passwordValidation: checkPw })
-    }
-    if (checkRepw) {
-      setUserValidation({ ...userValidation, repasswordValidation: checkRepw })
-    }
-    if (checkPhone) {
-      setUserValidation({ ...userValidation, phoneValidation: checkPhone })
-    } else {
-      setUserValidation({ ...userValidation, phoneValidation: checkPhone })
+    switch (name) {
+      case 'password':
+        return setUserValidation({
+          ...userValidation,
+          [`${name}Validation`]: checkPw,
+        })
+      case 'phone':
+        return setUserValidation({
+          ...userValidation,
+          [`${name}Validation`]: checkPhone,
+        })
+      default:
+        return
     }
   }
-  console.log(userValidation)
-
-  //전역 토큰값 설정
-
-  useEffect(() => {
-    token && dispatch(userToken(token))
-  }, [token])
 
   // 회원가입 핸들러
-
   const signupHandle = () => {
-    const { email, password, phone } = userData
+    const { email, password, repassword, phone } = userData
     const {
       emailValidation,
       passwordValidation,
-      repasswordValidation,
       phoneValidation,
     } = userValidation
+
+    const checkRepassword = password === repassword
 
     if (
       emailValidation &&
       passwordValidation &&
-      repasswordValidation &&
+      checkRepassword &&
       phoneValidation
     ) {
       axios
@@ -109,15 +102,18 @@ function Signup() {
           phone,
         })
         .then((res) => {
-          setToken(res.data.token)
+          dispatch(userToken(res.data.token))
           history.push('/')
         })
         .catch((error) => console.log(error))
     } else {
-      !emailValidation && alert('이메일 잘못입력')
-      !passwordValidation && alert('비밀번호 잘못입력')
-      !repasswordValidation && alert('비밀번호2 잘못입력')
-      !phoneValidation && alert('폰번호 잘못입력')
+      if (!emailValidation) {
+        alert('이메일형식이 잘못 입력했습니다.')
+        return focusHandle()
+      }
+      !passwordValidation && alert('비밀번호를 잘못입력했습니다.')
+      !checkRepassword && alert('비밀번호가 다릅니다.')
+      !phoneValidation && alert('핸드폰 번호형식이 아닙니다.')
     }
   }
 
@@ -130,6 +126,8 @@ function Signup() {
         userValidation={userValidation}
         onChange={(e) => signupValueHandle(e)}
         onBlur={(e) => emailValidation(e)}
+        onFocus={(e) => focusHandle(e)}
+        ref={emailInput}
       />
       {SIGNUP_DATA.map((item, index) => {
         const { type, name, placeholder } = item
@@ -140,8 +138,7 @@ function Signup() {
             value={userData[name]}
             placeholder={placeholder}
             userValidation={userValidation}
-            onInput={(e) => passwordValidation(e)}
-            onChange={(e) => signupValueHandle(e)}
+            onChange={(e) => passwordValidation(e)}
             key={index}
           />
         )

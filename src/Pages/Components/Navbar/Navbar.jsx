@@ -1,18 +1,40 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { deleteToken } from '../../../store/action'
+import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
 function Navbar(props) {
-  console.log(props.globalToken)
+  const { globalToken } = props
+  const dispatch = useDispatch()
+
+  const logoutHandle = () => {
+    localStorage.removeItem('token')
+    dispatch(deleteToken(null))
+  }
+
   return (
     <Navbars>
       <LogoContainer>
-        <img src="Image/mainlogo.png" alt="" />
+        <Link to="/">
+          <img src="./../../Image/mainlogo.png" alt="메인로고 이미지" />
+        </Link>
       </LogoContainer>
       <MenuContainer>
         <Link to="/">서비스</Link>
-        <Link to="/sign-up">회원가입</Link>
-        <Link to="/login">로그인</Link>
+        {globalToken ? (
+          <>
+            <Link to="/mypage/order">마이페이지</Link>
+            <Link to="/logout" onClick={logoutHandle}>
+              로그아웃
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/sign-up">회원가입</Link>
+            <Link to="/login">로그인</Link>
+          </>
+        )}
       </MenuContainer>
     </Navbars>
   )
