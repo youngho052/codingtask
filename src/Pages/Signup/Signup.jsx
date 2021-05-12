@@ -7,6 +7,11 @@ import { SIGNUP_DATA } from '../Components/Input/Data/InputData'
 import InputForm from '../Components/Input/SignupInput'
 import { SIGN_UP } from '../../Config'
 import { useHistory } from 'react-router'
+import { debounce } from 'lodash'
+
+const debounceSomethingFunc = debounce(() => {
+  console.log('dsdsd')
+}, 2500)
 
 function Signup() {
   const [userData, setUserData] = useState({
@@ -54,12 +59,13 @@ function Signup() {
   // 비밀번호 유효성 검사
   const passwordValidation = (e) => {
     signupValueHandle(e)
+    debounceSomethingFunc()
 
     const { name } = e.target
 
     const { password, phone } = userData
 
-    const checkPw = /^[A-Za-z0-9]{7,15}$/i.test(password)
+    const checkPw = /^[A-Za-z0-9]{8,15}$/i.test(password)
     const checkPhone = /^[0-9]{2,3}[0-9]{4}[0-9]{4}/.test(phone)
 
     switch (name) {
