@@ -10,7 +10,7 @@ import { useHistory } from 'react-router'
 import { debounce } from 'lodash'
 
 const debounceSomethingFunc = debounce(() => {
-  console.log('dsdsd')
+  console.log('test')
 }, 2500)
 
 function Signup() {
